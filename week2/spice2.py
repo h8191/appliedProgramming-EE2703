@@ -7,7 +7,7 @@ def valuate(x):
     if isinstance(x,str):
         orders ={'p':-12,'n':-9,'u':-6,'m':-3,'k':3,'M':6}
     if x[-1] in orders:
-            return complex(x[:-1])*orders[x[-1]]
+            return complex(x[:-1])*10**orders[x[-1]]
     return complex(eval(x))
 
 def polarForm(x,polar=True):
