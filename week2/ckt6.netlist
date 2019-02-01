@@ -1,0 +1,9 @@
+.circuit
+.ac V1 1k
+V1 n1 n0 ac 1 0
+R1 n1 n2 4.5k
+L1 n2 n3 80.96u
+L2 n3 n4 80.96u
+C1 n3 n0 2.485p
+R2 n4 n0 4k
+.end
