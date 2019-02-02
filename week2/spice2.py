@@ -14,26 +14,31 @@ def polarForm(x,polar=True):
     return (abs(x[0]),cmath.phase(x)*180/cmath.pi) if polar else x
 
 class Element(object):
+	allNodes = set()
+	allBatteries = []
+    controlledSouces = {i:[] for i in 'EFGH'}
     def __init__(self,info,freq):
         self.type = info[0][0]
         if self.type in 'RLCI':
             self.name, *self.nodes,value = info
             self.value = valuate(value)
         elif self.type == 'V':
+        	Element.allBatteries.append(self)
             if info.pop(3)=='ac':
                 self.name,*self.nodes,self.value,self.phase = info
                 self.value, self.freq, self.phase = valuate(self.value)/2, freq,valuate(self.phase)
             else:
                 self.name,*self.nodes,self.value = info
                 self.value, self.freq, self.phase = valuate(self.value), 0, 0
+        Element.allNodes.update(self.nodes)
+
 
     def admittance(self,W=0):
         if self.type == 'R':    return 1/self.value
         if self.type == 'C':    return 1j*W*self.value
         if self.type == 'L':    return -1j/(W*self.value)
 
-    def __str__(self):
-        return ' '.join('%s: %s'% item for item in vars(self).items())
+    __str__ = lambda self: ' '.join('%s: %s'% item for item in vars(self).items())
         #', '.join([attr for attr in dir(self) if not attr.startswith()]
     isRLC = lambda self: self.type in 'RLC'
 
@@ -57,14 +62,15 @@ class Circuit(object):
                     End = data.index(line)
                 if line[:len(AC)] == AC:
                     Ac = data.index(line)
-            self.w = valuate(Start<Ac<End and data[Ac].split()[-1])
+            self.w = valuate(Start<Ac<End and data[Ac].split()[-1])#short circuit and returning from boolean
             self.elements = [Element(line.split('#')[0].split(),self.w) for line in data[Start+1:End] if line[:len(AC)]!=AC]
+            self.nodes = list(Element.allNodes)
+            self.batteries = Element.batteries
+            Element.allNodes, Element.allBatteries = set(),[]
 
     def solve(self):
         '''identify variables in x matrix'''
-        currents = ['I'+i.name[1:] for i in self.elements if i.type == 'V']# through batteries
-        nodes = list({node for element in self.elements for node in element.nodes})
-        self.variables = nodes + currents
+        self.variables = self.nodes + ['I'+i.name[1:] for i in self.batteries]#currents through batteries
         self.X = {i:[j,[]] for i,j in zip(self.variables,range(len(self.variables)))}
         #dict with nodes,keys = nodes,vSrcs vals[0] = indexes vals[1] = elements connected to load
         for element in self.elements:
@@ -75,9 +81,9 @@ class Circuit(object):
         self.A,self.b = np.zeros((lenX,lenX),dtype=np.complex64),np.zeros((lenX,1),dtype=np.complex64)
 
         #actual equations
-        for node in nodes:
+        for node in self.nodes:
             self.nodalEquation(node,self.X[node][1])#kcl equations at each node
-        for vSrc in [i for i in self.elements if i.type == 'V']:
+        for vSrc in self.batteries:
             self.voltageSrcEqn(vSrc)#potential difference between ends of battery Eqn
 
         self.solution = dict(zip(self.X,np.linalg.solve(self.A,self.b)))
@@ -88,7 +94,7 @@ class Circuit(object):
         '''connectedToThis => list of all elements connected to this node'''
         constant = 0
         self.rIndex +=1
-        if node in ('GND','n0'):
+        if node in ('GND')#,'n0'):
             self.A[self.rIndex,self.X[node][0]] = 1 #V(GND) = 0
             return
         for element in connectedToThis:
@@ -103,6 +109,7 @@ class Circuit(object):
             elif element.type=='I':
                 #current flows from node 1 to node 2
                 constant += (element.value if isFirstNode else -element.value)
+
         self.b[self.rIndex] = constant
 
     def voltageSrcEqn(self,vSrc):
@@ -122,6 +129,4 @@ class Circuit(object):
 if __name__ == '__main__':
     circuits = [Circuit(filename) for filename in 
                             (sys.argv[1:] if len(sys.argv)>1 else input('enter filenames').split())]
-
-
 
