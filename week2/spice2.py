@@ -16,7 +16,7 @@ def polarForm(x,polar=True):
 class Element(object):
 	allNodes = set()
 	allBatteries = []
-    controlledSouces = {i:[] for i in 'EFGH'}
+        controlledSouces = {i:[] for i in 'EFGH'}
     def __init__(self,info,freq):
         self.type = info[0][0]
         if self.type in 'RLCI':
