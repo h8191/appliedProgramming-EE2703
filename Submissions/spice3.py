@@ -112,6 +112,7 @@ class Circuit(object):
                 B[self.vars[e.nodes[1]],0] = +current
         
         A[self.vars['GND'],:], B[self.vars['GND'],0] = 0,0#overwriting GND equation
+        #A[:,self.vars['GND']] = 0
         A[self.vars['GND'],self.vars['GND']] = 1
 
         solution = np.linalg.solve(A,B).reshape(lenX)
