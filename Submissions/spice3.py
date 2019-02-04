@@ -80,7 +80,7 @@ class Circuit(object):
 
             for line in data[End+1:]:
                 line = nonComment(line)
-                if line[0] == '.ac':
+                if len(line)>0 and line[0] == '.ac':
                     for element in {'I':self.cSources,'V':self.batteries}[line[1][0]]:
                         if element.name == line[1]:
                             element.freq = valuate(line[2])
