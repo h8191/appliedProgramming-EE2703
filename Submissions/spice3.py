@@ -104,10 +104,10 @@ class Circuit(object):
                 A[self.vars[e.nodes[1]],self.vars[e.current]] = 1
                 A[self.vars[e.current],self.vars[e.nodes[0]]] = 1
                 A[self.vars[e.current],self.vars[e.nodes[1]]] = -1
-                B[self.vars[e.current],0] = e.value*cmath.exp(e.phase)
+                B[self.vars[e.current],0] = e.value*cmath.exp(1j*e.phase)
             if e.type == 'I':
                 #assume current is flowing out from +ve/first node
-                current  = e.value*cmath.exp(e.phase)
+                current  = e.value*cmath.exp(1j*e.phase)
                 B[self.vars[e.nodes[0]],0] = -current
                 B[self.vars[e.nodes[1]],0] = +current
         
