@@ -3,7 +3,7 @@ import sys
 import cmath
 
 class component:
-      def --init--(self,bn,edn,value):
+      def __init__(self,bn,edn,value):
               self.bn=bn;
               self.edn=edn;
               self.value=value;
