@@ -34,21 +34,3 @@ plt.xlabel(r'$t$ -->')
 plt.title('Q5: Data Points for $\sigma$ = 0.10 along with exact function')
 legend()
 #show()
-
-#6
-A0,B0 = 1.05,-0.105
-M = c_[jn(2,t),t]
-p = c_[np.array([A0,B0])]#.reshape(2,1)
-#print(M.shape,p.shape,dot(M,p).shape, g(t,A0,B0).shape)
-#print(dot(M,p).shape == g(t,A0,B0).shape)
-print(all(M.dot(p) == c_[g(t,A0,B0)]))#.reshape(t.shape[0],1))
-
-#7 
-print('#7 :')
-for i,j in zip(linspace(0,2,21),linspace(-0.2,0,21)):
-    print(msq(yy[:,0],t,0,j))
-
-
-#8
-X, Y = meshgrid(linspace(-5,5,11),linspace(-5,5,11)) 
-#plt.clabel(plt.contour(X,Y,Z,color='red',linewidths=5,cmap='jet'),inline=1,fontsize=23)
